@@ -47,7 +47,7 @@ const FullPageScroll = () => {
                                             <span className = 'summarizer'>summarizer</span>
                                             <span className = 'summarizer-description'> web page summarizer</span>
                                         </div>
-                                        <span class = 'summarizer-date'>Aug 2024</span>
+                                        <span className = 'summarizer-date'>Aug 2024</span>
                                     </div>                                
                                 </li>
                             </a>
