@@ -1,4 +1,17 @@
 {
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": "./",
+    "paths": {
+      "@ap.cx/react-fullpage": ["src/types/react-fullpage.d.ts"]
+    }
+  },
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
