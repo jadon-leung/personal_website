@@ -1,9 +1,15 @@
 //@ts-nocheck
 
-import React from 'react'
+import React, {useEffect} from 'react'
 import Fullpage, {FullPageSections, FullpageSection, FullpageNavigation} from '@ap.cx/react-fullpage'
 import './FullPageScroll.css'
 const FullPageScroll = () => {
+    useEffect(() => {
+        const sectionElement = document.querySelector('.fullpage-section-class'); // replace with correct class if necessary
+        if (sectionElement) {
+          console.log(sectionElement.clientHeight); // Ensure this is only called when the element is available
+        }
+      }, []);
     const SectionStyle1 = {
         
             height: '100vh',
