@@ -44,33 +44,20 @@ const FullPageScroll = () => {
                     <div>
                         <h2>projects</h2>
                         <ul className = 'project-items'>
-                            <div className = 'item1'>
-                            <a href = 'https://github.com/jadon-leung/summarizer' target = '_blank' rel = 'noreferrer'>
+                        <div className = 'item1'>
+                            <a href = 'https://github.com/jadon-leung/STUDI' target = '_blank' rel = 'noreferrer'>
                                 <li className = 'project-list-items'>
                                     <div className = 'space'>
                                         <div className = 'items-center'>  
-                                            <span className = 'summarizer'>summarizer</span>
-                                            <span className = 'summarizer-description'> web page summarizer</span>
+                                            <span className = 'summarizer'>studi</span>
+                                            <span className = 'summarizer-description'> (wip) study group social app</span>
                                         </div>
-                                        <span className = 'summarizer-date'>Aug 2024</span>
+                                        <span className = 'summarizer-date'>May 2024</span>
                                     </div>                                
                                 </li>
                             </a>
                             </div>
-                            <div className = 'item2'>
-                            <a href = 'https://github.com/jadon-leung/JADN' target = '_blank' rel = 'noreferrer'>
-                                <li className = 'project-list-items'>
-                                    <div className = 'space'>
-                                        <div className = 'items-center'>  
-                                            <span className = 'summarizer'>scheduler</span>
-                                            <span className = 'summarizer-description'> schedule calendar events using llm</span>
-                                        </div>
-                                        <span className = 'summarizer-date'>Sep 2024</span>
-                                    </div>                                
-                                </li>
-                            </a>
-                            </div>
-                            <div className = 'item3'>
+                        <div className = 'item2'>
                             <a href = 'https://github.com/jadon-leung/GP-for-Stock' target = '_blank' rel = 'noreferrer'>
                                 <li className = 'project-list-items'>
                                     <div className = 'space'>
@@ -83,6 +70,33 @@ const FullPageScroll = () => {
                                 </li>
                             </a>
                             </div>
+                            <div className = 'item3'>
+                            <a href = 'https://github.com/jadon-leung/summarizer' target = '_blank' rel = 'noreferrer'>
+                                <li className = 'project-list-items'>
+                                    <div className = 'space'>
+                                        <div className = 'items-center'>  
+                                            <span className = 'summarizer'>summarizer</span>
+                                            <span className = 'summarizer-description'> web page summarizer</span>
+                                        </div>
+                                        <span className = 'summarizer-date'>Aug 2024</span>
+                                    </div>                                
+                                </li>
+                            </a>
+                            </div>
+                            <div className = 'item4'>
+                            <a href = 'https://github.com/jadon-leung/JADN' target = '_blank' rel = 'noreferrer'>
+                                <li className = 'project-list-items'>
+                                    <div className = 'space'>
+                                        <div className = 'items-center'>  
+                                            <span className = 'summarizer'>scheduler</span>
+                                            <span className = 'summarizer-description'> schedule calendar events using llm</span>
+                                        </div>
+                                        <span className = 'summarizer-date'>Sep 2024</span>
+                                    </div>                                
+                                </li>
+                            </a>
+                            </div>
+                            
                         </ul>
                     </div>
                     <div>
