@@ -1,7 +1,7 @@
 //@ts-nocheck
 
 import React, {useEffect} from 'react'
-import Fullpage, {FullPageSections, FullpageSection, FullpageNavigation} from '@ap.cx/react-fullpage'
+// import Fullpage, {FullPageSections, FullpageSection, FullpageNavigation} from '@ap.cx/react-fullpage'
 import './FullPageScroll.css'
 const FullPageScroll = () => {
     useEffect(() => {
@@ -22,9 +22,8 @@ const FullPageScroll = () => {
     }
     return (
         <div>
-            <Fullpage>
-                <FullpageNavigation/>
-                <FullpageSection style = {SectionStyle1}>
+            <>
+                <div style = {SectionStyle1}>
                  
                     <h1 id = 'heyStyle'>hey, i'm jadon leung</h1>
                     <h3 className = 'header'>incoming undergrad at 
@@ -112,9 +111,9 @@ const FullPageScroll = () => {
                         </div>
                     </div>
                     
-                </FullpageSection >
+                </div >
                
-            </Fullpage>
+            </>
         </div>
     )
 }
