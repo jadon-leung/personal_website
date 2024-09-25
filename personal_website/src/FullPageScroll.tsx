@@ -71,6 +71,19 @@ const FullPageScroll = () => {
                                 </li>
                             </a>
                             </div>
+                            <div className = 'item3'>
+                            <a href = 'https://github.com/jadon-leung/GP-for-Stock' target = '_blank' rel = 'noreferrer'>
+                                <li className = 'project-list-items'>
+                                    <div className = 'space'>
+                                        <div className = 'items-center'>  
+                                            <span className = 'summarizer'>gp</span>
+                                            <span className = 'summarizer-description'> gaussian processes for stock prediction</span>
+                                        </div>
+                                        <span className = 'summarizer-date'>June 2024</span>
+                                    </div>                                
+                                </li>
+                            </a>
+                            </div>
                         </ul>
                     </div>
                     <div>

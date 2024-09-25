@@ -6,7 +6,7 @@
   "scripts": {
     "build:css": "npx tailwindcss -i ./src/styles.css -o ./dist/output.css",
     "dev": "vite",
-    "build": "npm run build:css && tsc -b && vite build",
+    "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "predeploy": "npm run build",
