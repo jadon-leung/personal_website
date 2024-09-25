@@ -34,9 +34,9 @@ const FullPageScroll = () => {
                     <div>
                         <h2>about</h2>
                         <p className = "aboutme">
-                            I'm an undergraduate at the University of Southern California studying Computational and Applied Mathematics, concentrating in computer science.
-                            My main interests lie in deep learning and econometrics. This past summer I did software development for 
-                            <a href = 'https://www.gopipa.com/admin/home' target = '_blank' id = 'text-link'> GoPipa</a>, an AI fintech company. Currently, I am an investment analayst for
+                            i'm an undergraduate at the University of Southern California studying computational and applied mathematics, concentrating in computer science.
+                            my main interests lie in deep learning and econometrics. this past summer I did software development for 
+                            <a href = 'https://www.gopipa.com/admin/home' target = '_blank' id = 'text-link'> GoPipa</a>, an AI fintech company. currently, i am an investment analayst for
                             <a href = 'https://www.avaleriancapital.com/' target = '_blank' id = 'text-link'> Avalerian</a>, a search fund focused on acquiring B2B SaaS companies.
                         </p>
                         
