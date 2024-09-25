@@ -59,7 +59,7 @@ const FullPageScroll = () => {
                             </a>
                             </div>
                             <div className = 'item2'>
-                            <a href = 'https://github.com/jadon-leung/scheduler' target = '_blank' rel = 'noreferrer'>
+                            <a href = 'https://github.com/jadon-leung/JADN' target = '_blank' rel = 'noreferrer'>
                                 <li className = 'project-list-items'>
                                     <div className = 'space'>
                                         <div className = 'items-center'>  
