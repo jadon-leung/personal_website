@@ -49,10 +49,10 @@ const FullPageScroll = () => {
                                 <li className = 'project-list-items'>
                                     <div className = 'space'>
                                         <div className = 'items-center'>  
-                                            <span className = 'summarizer'>ai lease assistant</span>
-                                            <span className = 'summarizer-description'> understanding lease documents w/ rag</span>
+                                            <span className = 'summarizer'>lease.ai</span>
+                                            <span className = 'summarizer-description'> understanding lease documents through rag</span>
                                         </div>
-                                        <span className = 'summarizer-date'>May 2024</span>
+                                        <span className = 'summarizer-date'>Nov 2024</span>
                                     </div>                                
                                 </li>
                             </a>
