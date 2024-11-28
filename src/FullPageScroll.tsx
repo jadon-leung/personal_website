@@ -36,7 +36,7 @@ const FullPageScroll = () => {
                         <p className = "aboutme">
                             i'm an undergraduate at the University of Southern California studying computational and applied mathematics, concentrating in computer science.
                             my main interests lie in deep learning and econometrics. this past summer I did software development for 
-                            <a href = 'https://www.gopipa.com/admin/home' target = '_blank' id = 'text-link'> GoPipa</a>, an AI fintech company. currently, i am an investment analayst for
+                            <a href = 'https://www.gopipa.com/admin/home' target = '_blank' id = 'text-link'> GoPIPA</a>, an AI fintech company. currently, i am an investment analayst for
                             <a href = 'https://www.avaleriancapital.com/' target = '_blank' id = 'text-link'> Avalerian</a>, a search fund focused on acquiring B2B SaaS companies.
                         </p>
                         
@@ -44,6 +44,19 @@ const FullPageScroll = () => {
                     <div>
                         <h2>projects</h2>
                         <ul className = 'project-items'>
+                        <div className = 'item0'>
+                            <a href = 'https://github.com/jadon-leung/rag' target = '_blank' rel = 'noreferrer'>
+                                <li className = 'project-list-items'>
+                                    <div className = 'space'>
+                                        <div className = 'items-center'>  
+                                            <span className = 'summarizer'>ai lease assistant</span>
+                                            <span className = 'summarizer-description'> understanding lease documents w/ rag</span>
+                                        </div>
+                                        <span className = 'summarizer-date'>May 2024</span>
+                                    </div>                                
+                                </li>
+                            </a>
+                            </div>
                         <div className = 'item1'>
                             <a href = 'https://github.com/jadon-leung/STUDI' target = '_blank' rel = 'noreferrer'>
                                 <li className = 'project-list-items'>
@@ -88,7 +101,7 @@ const FullPageScroll = () => {
                                 <li className = 'project-list-items'>
                                     <div className = 'space'>
                                         <div className = 'items-center'>  
-                                            <span className = 'summarizer'>scheduler</span>
+                                            <span className = 'summarizer'>jadn</span>
                                             <span className = 'summarizer-description'> schedule calendar events using llm</span>
                                         </div>
                                         <span className = 'summarizer-date'>Sep 2024</span>
