@@ -1,55 +1,96 @@
-
-import {useEffect, useRef, useState, useCallback} from 'react'
-// import Fullpage, {FullPageSections, FullpageSection, FullpageNavigation} from '@ap.cx/react-fullpage'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import './FullPageScroll.css'
 
 const FullPageScroll = () => {
-    const headshotRef = useRef<HTMLDivElement>(null);
-    const aboutRef = useRef<HTMLDivElement>(null);
-    const projectsRef = useRef<HTMLDivElement>(null);
-    const connectRef = useRef<HTMLDivElement>(null);
-    const titleRef = useRef<HTMLHeadingElement>(null);
-    const subtitleRef = useRef<HTMLHeadingElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const backgroundLayerRef = useRef<HTMLDivElement>(null);
+    const titleRef = useRef<HTMLHeadingElement>(null);
     const hasTypedRef = useRef(false);
-    
-    const [scrollY, setScrollY] = useState(0);
-    const [scrollProgress, setScrollProgress] = useState(0);
-    const [scrollVelocity, setScrollVelocity] = useState(0);
+    const sectionsRef = useRef<(HTMLElement | null)[]>([]);
 
-    // Smooth scroll tracking with momentum
+    const [scrollProgress, setScrollProgress] = useState(0);
+    const [activeSection, setActiveSection] = useState<number>(-1);
+
+    // Calculate which section is most in view
+    const updateActiveSection = useCallback(() => {
+        const sections = sectionsRef.current.filter(Boolean);
+        const windowHeight = window.innerHeight;
+        const viewportCenter = windowHeight / 2;
+
+        let closestSection = -1;
+        let closestDistance = Infinity;
+
+        sections.forEach((section, index) => {
+            if (!section) return;
+            const rect = section.getBoundingClientRect();
+            const sectionCenter = rect.top + rect.height / 2;
+            const distance = Math.abs(sectionCenter - viewportCenter);
+
+            // Only consider sections that are at least partially visible
+            if (rect.top < windowHeight && rect.bottom > 0) {
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestSection = index;
+                }
+            }
+        });
+
+        setActiveSection(closestSection);
+    }, []);
+
+    // Smooth scroll progress tracking
     const handleScroll = useCallback(() => {
         const currentScrollY = window.scrollY;
         const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
         const progress = Math.min(currentScrollY / maxScroll, 1);
-        
-        setScrollVelocity(currentScrollY - scrollY);
-        setScrollY(currentScrollY);
         setScrollProgress(progress);
-    }, [scrollY]);
+
+        // Subtle parallax on background
+        if (backgroundLayerRef.current) {
+            backgroundLayerRef.current.style.transform = `translateY(${currentScrollY * 0.15}px)`;
+        }
+
+        // Update active section
+        updateActiveSection();
+
+        // Apply scroll-based transforms to all sections
+        sectionsRef.current.forEach((section) => {
+            if (!section) return;
+
+            const rect = section.getBoundingClientRect();
+            const windowHeight = window.innerHeight;
+            const sectionCenter = rect.top + rect.height / 2;
+            const viewportCenter = windowHeight / 2;
+
+            // Calculate how far from center (0 = center, 1 = edge)
+            const distanceFromCenter = Math.abs(sectionCenter - viewportCenter) / (windowHeight / 2);
+            const normalizedDistance = Math.min(distanceFromCenter, 1);
+
+            // Calculate direction (positive = below center, negative = above)
+            const direction = sectionCenter > viewportCenter ? 1 : -1;
+
+            // Apply transforms based on distance from center
+            const scale = 1 - normalizedDistance * 0.05;
+            const translateY = normalizedDistance * 20 * direction;
+            const blur = normalizedDistance * 2;
+
+            section.style.transform = `translateY(${translateY}px) scale(${scale})`;
+            section.style.filter = `blur(${blur}px)`;
+            section.style.opacity = `${1 - normalizedDistance * 0.4}`;
+        });
+    }, [updateActiveSection]);
 
     useEffect(() => {
-        // Enhanced Intersection Observer for dynamic animations
+        // Intersection Observer for fade-in animations
         const observerOptions = {
-            threshold: [0, 0.1, 0.3, 0.5, 0.7, 1],
-            rootMargin: '-10% 0px -10% 0px'
+            threshold: 0.1,
+            rootMargin: '-50px 0px -50px 0px'
         };
 
         const observer = new IntersectionObserver((entries) => {
             entries.forEach((entry) => {
-                const element = entry.target as HTMLElement;
-                const ratio = entry.intersectionRatio;
-                
                 if (entry.isIntersecting) {
-                    element.classList.add('animate-in');
-                    
-                    // Dynamic transforms based on intersection ratio
-                    const transform = `translateY(${(1 - ratio) * 50}px) scale(${0.9 + ratio * 0.1})`;
-                    const opacity = ratio;
-                    
-                    element.style.transform = transform;
-                    element.style.opacity = opacity.toString();
+                    entry.target.classList.add('animate-in');
                 }
             });
         }, observerOptions);
@@ -58,7 +99,7 @@ const FullPageScroll = () => {
         const animatedElements = document.querySelectorAll('.animate-on-scroll');
         animatedElements.forEach((el) => observer.observe(el));
 
-        // Staggered project animations with enhanced effects
+        // Staggered project animations
         const projectObserver = new IntersectionObserver((entries) => {
             entries.forEach((entry) => {
                 if (entry.isIntersecting) {
@@ -66,32 +107,25 @@ const FullPageScroll = () => {
                     items.forEach((item, index) => {
                         setTimeout(() => {
                             item.classList.add('project-item-visible');
-                            
-                            // Add random rotation and scale variations
-                            const randomRotation = (Math.random() - 0.5) * 2;
-                            const randomScale = 0.98 + Math.random() * 0.04;
-                            
-                            (item as HTMLElement).style.setProperty('--random-rotation', `${randomRotation}deg`);
-                            (item as HTMLElement).style.setProperty('--random-scale', randomScale.toString());
-                        }, index * 100);
+                        }, index * 80);
                     });
                 }
             });
-        }, observerOptions);
+        }, { threshold: 0.1 });
 
-        if (projectsRef.current) {
-            projectObserver.observe(projectsRef.current);
+        const projectsSection = document.querySelector('[data-section="projects"]');
+        if (projectsSection) {
+            projectObserver.observe(projectsSection);
         }
 
-        // Typing animation for main title (run only once)
+        // Typing animation for main title
         const typeWriter = () => {
             const text = "hi, i'm jadon leung";
             const titleElement = titleRef.current;
             if (titleElement && !hasTypedRef.current) {
                 hasTypedRef.current = true;
                 titleElement.textContent = '';
-                titleElement.style.borderRight = '3px solid white';
-                
+
                 let i = 0;
                 const typing = setInterval(() => {
                     if (i < text.length && titleElement) {
@@ -100,213 +134,98 @@ const FullPageScroll = () => {
                     } else {
                         clearInterval(typing);
                         if (titleElement) {
-                            setTimeout(() => {
-                                titleElement.style.borderRight = 'none';
-                            }, 1000);
+                            titleElement.setAttribute('data-typed', 'true');
                         }
                     }
-                }, 80);
+                }, 60);
             }
         };
 
-        const typingTimeout = setTimeout(typeWriter, 500);
+        const typingTimeout = setTimeout(typeWriter, 800);
+
+        // Scroll listener with throttling
+        let ticking = false;
+        const scrollHandler = () => {
+            if (!ticking) {
+                requestAnimationFrame(() => {
+                    handleScroll();
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        };
+
+        window.addEventListener('scroll', scrollHandler, { passive: true });
+
+        // Initial call
+        handleScroll();
 
         return () => {
             observer.disconnect();
             projectObserver.disconnect();
             clearTimeout(typingTimeout);
+            window.removeEventListener('scroll', scrollHandler);
         };
-    }, []);
+    }, [handleScroll]);
 
-    // Advanced scroll effects - apply to all elements
-    useEffect(() => {
-        let ticking = false;
-        
-        const updateScrollEffects = () => {
-            const scrolled = scrollY;
-            
-            // Helper function to calculate visibility and transforms
-            const applyScrollTransform = (element: HTMLElement | null, options: {
-                fadeStart?: number;
-                fadeEnd?: number;
-                scaleMin?: number;
-                rotateMax?: number;
-                translateYRate?: number;
-            } = {}) => {
-                if (!element) return;
-                
-                const rect = element.getBoundingClientRect();
-                const windowHeight = window.innerHeight;
-                const elementCenter = rect.top + rect.height / 2;
-                
-                // Calculate how far the element is from the optimal viewing position
-                const optimalPosition = windowHeight * 0.5;
-                const distanceFromOptimal = Math.abs(elementCenter - optimalPosition);
-                const maxDistance = windowHeight;
-                
-                // Normalize distance (0 = optimal, 1 = far away)
-                const normalizedDistance = Math.min(distanceFromOptimal / maxDistance, 1);
-                
-                // Calculate transforms based on distance
-                const opacity = Math.max(1 - normalizedDistance * (options.fadeEnd ?? 1.2), 0);
-                const scale = Math.max(1 - normalizedDistance * (1 - (options.scaleMin ?? 0.85)), options.scaleMin ?? 0.85);
-                const rotateX = normalizedDistance * (options.rotateMax ?? 15) * (elementCenter > optimalPosition ? 1 : -1);
-                const translateY = normalizedDistance * (options.translateYRate ?? 30) * (elementCenter > optimalPosition ? 1 : -1);
-                
-                element.style.opacity = opacity.toString();
-                element.style.transform = `
-                    perspective(1000px)
-                    translateY(${translateY}px)
-                    rotateX(${rotateX}deg)
-                    scale(${scale})
-                `;
-            };
-            
-            // Apply to headshot
-            if (headshotRef.current) {
-                const headshot = headshotRef.current.querySelector('.headshot-wrapper') as HTMLElement;
-                applyScrollTransform(headshot, {
-                    fadeEnd: 1.5,
-                    scaleMin: 0.7,
-                    rotateMax: 20,
-                    translateYRate: 50
-                });
-            }
-            
-            // Apply to title
-            if (titleRef.current) {
-                applyScrollTransform(titleRef.current, {
-                    fadeEnd: 1.3,
-                    scaleMin: 0.9,
-                    rotateMax: 10,
-                    translateYRate: 20
-                });
-            }
-            
-            // Apply to subtitle
-            if (subtitleRef.current) {
-                applyScrollTransform(subtitleRef.current, {
-                    fadeEnd: 1.2,
-                    scaleMin: 0.92,
-                    rotateMax: 8,
-                    translateYRate: 15
-                });
-            }
+    // Helper to set section refs
+    const setSectionRef = (index: number) => (el: HTMLElement | null) => {
+        sectionsRef.current[index] = el;
+    };
 
-            // Apply to all sections
-            [aboutRef, projectsRef, connectRef].forEach((ref) => {
-                if (ref.current) {
-                    applyScrollTransform(ref.current, {
-                        fadeEnd: 1.0,
-                        scaleMin: 0.9,
-                        rotateMax: 8,
-                        translateYRate: 25
-                    });
-                    
-                    // Also apply to individual project items within projects section
-                    if (ref === projectsRef) {
-                        const projectItems = ref.current.querySelectorAll('.project-list-items');
-                        projectItems.forEach((item, index) => {
-                            const itemElement = item as HTMLElement;
-                            const rect = itemElement.getBoundingClientRect();
-                            const windowHeight = window.innerHeight;
-                            const elementCenter = rect.top + rect.height / 2;
-                            const optimalPosition = windowHeight * 0.5;
-                            const distanceFromOptimal = Math.abs(elementCenter - optimalPosition);
-                            const normalizedDistance = Math.min(distanceFromOptimal / windowHeight, 1);
-                            
-                            const opacity = Math.max(1 - normalizedDistance * 1.2, 0);
-                            const scale = Math.max(1 - normalizedDistance * 0.15, 0.85);
-                            const translateX = normalizedDistance * 20 * (index % 2 === 0 ? -1 : 1);
-                            
-                            itemElement.style.opacity = opacity.toString();
-                            itemElement.style.transform = `
-                                translateX(${translateX}px)
-                                scale(${scale})
-                            `;
-                        });
-                    }
-                    
-                    // Apply to social icons in connect section
-                    if (ref === connectRef) {
-                        const socials = ref.current.querySelector('.socials') as HTMLElement;
-                        if (socials) {
-                            const rect = socials.getBoundingClientRect();
-                            const windowHeight = window.innerHeight;
-                            const elementCenter = rect.top + rect.height / 2;
-                            const optimalPosition = windowHeight * 0.5;
-                            const distanceFromOptimal = Math.abs(elementCenter - optimalPosition);
-                            const normalizedDistance = Math.min(distanceFromOptimal / windowHeight, 1);
-                            
-                            const opacity = Math.max(1 - normalizedDistance * 1.3, 0);
-                            const scale = Math.max(1 - normalizedDistance * 0.2, 0.8);
-                            
-                            socials.style.opacity = opacity.toString();
-                            socials.style.transform = `scale(${scale})`;
-                        }
-                    }
-                }
-            });
-
-            // Background layer parallax
-            if (backgroundLayerRef.current) {
-                const bgTransform = scrolled * 0.3;
-                backgroundLayerRef.current.style.transform = `translateY(${bgTransform}px)`;
-            }
-
-            ticking = false;
-        };
-
-        const requestScrollUpdate = () => {
-            if (!ticking) {
-                requestAnimationFrame(updateScrollEffects);
-                ticking = true;
-            }
-        };
-
-        window.addEventListener('scroll', handleScroll);
-        window.addEventListener('scroll', requestScrollUpdate);
-        
-        return () => {
-            window.removeEventListener('scroll', handleScroll);
-            window.removeEventListener('scroll', requestScrollUpdate);
-        };
-    }, [handleScroll, scrollY, scrollVelocity]);
-    const SectionStyle1 = {
-        
-            height: '100%',
-            width:'100%',
-            // marginTop: '600px',
-            // display: 'flex-center',
-            justifyContent: 'center',
-            alignItems: 'center',
-
-    }
     return (
         <div className="main-container" ref={containerRef}>
             {/* Scroll Progress Indicator */}
             <div className="scroll-progress">
-                <div 
-                    className="scroll-progress-bar" 
+                <div
+                    className="scroll-progress-bar"
                     style={{ width: `${scrollProgress * 100}%` }}
-                ></div>
+                />
             </div>
-            
+
+            {/* Section indicator dots */}
+            <nav className="section-nav">
+                {['hello', 'about', 'projects', 'connect'].map((name, index) => (
+                    <button
+                        key={name}
+                        className={`section-dot ${activeSection === index ? 'active' : ''}`}
+                        onClick={() => {
+                            sectionsRef.current[index]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }}
+                        aria-label={`Go to ${name} section`}
+                    >
+                        <span className="section-dot-label">{name}</span>
+                    </button>
+                ))}
+            </nav>
+
             {/* Dynamic Background Layer */}
             <div className="background-layer" ref={backgroundLayerRef}>
-                <div className="floating-element floating-1"></div>
-                <div className="floating-element floating-2"></div>
-                <div className="floating-element floating-3"></div>
+                <div className="floating-element floating-1" />
+                <div className="floating-element floating-2" />
+                <div className="floating-element floating-3" />
+                {/* Spotlight that follows active section */}
+                <div
+                    className="section-spotlight"
+                    style={{
+                        opacity: activeSection >= 0 ? 1 : 0,
+                        top: activeSection >= 0 ? `${25 + activeSection * 25}%` : '50%'
+                    }}
+                />
             </div>
 
             <div className="fullpage-wrapper">
-                <div style = {SectionStyle1}>
-                    {/* Headshot Section */}
-                    <div className="headshot-container animate-on-scroll" ref={headshotRef}>
+                {/* Hero Section */}
+                <header
+                    ref={setSectionRef(0)}
+                    className={`section-container ${activeSection === 0 ? 'section-active' : ''}`}
+                >
+                    <div className="headshot-container animate-on-scroll">
                         <div className="headshot-wrapper">
-                            <img 
-                                src="/personal_website/headshot.JPG" 
-                                alt="Jadon Leung headshot" 
+                            <div className="headshot-glow" />
+                            <img
+                                src="/personal_website/headshot.JPG"
+                                alt="Jadon Leung"
                                 className="headshot-image"
                                 onError={(e) => {
                                     e.currentTarget.style.display = 'none';
@@ -315,127 +234,160 @@ const FullPageScroll = () => {
                                 }}
                             />
                             <div className="headshot-placeholder" style={{display: 'none'}}>
-                                <span>Add your headshot here</span>
+                                <span>JL</span>
                             </div>
-                            
                         </div>
                     </div>
-                    
-                    <h1 id = 'heyStyle' ref={titleRef}>hi, i'm jadon leung</h1>
-                    <h3 className = 'header' ref={subtitleRef}>incoming undergrad at{' '}
-                        <a href = "https://www.usc.edu/"  id = 'usc' target = "_blank">usc</a>
+
+                    <h1 id="heyStyle" ref={titleRef}>hi, i'm jadon leung</h1>
+                    <h3 className="header">
+                        incoming undergrad at{' '}
+                        <a href="https://www.usc.edu/" id="usc" target="_blank" rel="noopener noreferrer">
+                            usc
+                        </a>
                         {' '}studying computational and applied mathematics
                     </h3>
-                    {/* <p className = 'blinking-text'>scroll to learn more</p> */}
-                    <div className="animate-on-scroll section-pop" ref={aboutRef}>
-                        <h2>about</h2>
-                        <p className = "aboutme">
-                            i'm an undergraduate at the University of Southern California studying computational and applied mathematics, concentrating in computer science.
-                            my main interests lie in full stack development and machine learning. these past summers I interned for{' '}
-                            <a href = 'https://www.taodigitalsolutions.com/' target = '_blank' id = 'text-link'> TAO Digital Solutions</a>, a digital solutions company and{' '}
-                            <a href = 'https://www.gopipa.com/admin/home' target = '_blank' id = 'text-link'> GoPIPA</a>, an AI fintech company. I also interned as an investment analayst for{' '}
-                            <a href = 'https://www.avaleriancapital.com/' target = '_blank' id = 'text-link'> Avalerian</a>, a search fund focused on acquiring B2B SaaS companies.
-                        </p>
-                        
-                    </div>
-                    <div className="animate-on-scroll section-pop" ref={projectsRef}>
-                        <h2>projects</h2>
-                        <ul className = 'project-items'>
-                        <div className = 'item0'>
-                            <a href = 'https://github.com/jadon-leung/rag' target = '_blank' rel = 'noreferrer'>
-                                <li className = 'project-list-items'>
-                                    <div className = 'space'>
-                                        <div className = 'items-center'>  
-                                            <span className = 'summarizer'>lease.ai</span>
-                                            <span className = 'summarizer-description'> understanding lease documents through rag</span>
-                                        </div>
-                                        <span className = 'summarizer-date'>Nov 2024</span>
-                                    </div>                                
-                                </li>
-                            </a>
-                            </div>
-                        <div className = 'item1'>
-                            <a href = 'https://github.com/jadon-leung/STUDI' target = '_blank' rel = 'noreferrer'>
-                                <li className = 'project-list-items'>
-                                    <div className = 'space'>
-                                        <div className = 'items-center'>  
-                                            <span className = 'summarizer'>studi</span>
-                                            <span className = 'summarizer-description'> (wip) study group social app</span>
-                                        </div>
-                                        <span className = 'summarizer-date'>May 2024</span>
-                                    </div>                                
-                                </li>
-                            </a>
-                            </div>
-                        <div className = 'item2'>
-                            <a href = 'https://github.com/jadon-leung/GP-for-Stock' target = '_blank' rel = 'noreferrer'>
-                                <li className = 'project-list-items'>
-                                    <div className = 'space'>
-                                        <div className = 'items-center'>  
-                                            <span className = 'summarizer'>gp</span>
-                                            <span className = 'summarizer-description'> gaussian processes for stock prediction</span>
-                                        </div>
-                                        <span className = 'summarizer-date'>June 2024</span>
-                                    </div>                                
-                                </li>
-                            </a>
-                            </div>
-                            <div className = 'item3'>
-                            <a href = 'https://github.com/jadon-leung/summarizer' target = '_blank' rel = 'noreferrer'>
-                                <li className = 'project-list-items'>
-                                    <div className = 'space'>
-                                        <div className = 'items-center'>  
-                                            <span className = 'summarizer'>summarizer</span>
-                                            <span className = 'summarizer-description'> web page summarizer</span>
-                                        </div>
-                                        <span className = 'summarizer-date'>Aug 2024</span>
-                                    </div>                                
-                                </li>
-                            </a>
-                            </div>
-                            <div className = 'item4'>
-                            <a href = 'https://github.com/jadon-leung/JADN' target = '_blank' rel = 'noreferrer'>
-                                <li className = 'project-list-items'>
-                                    <div className = 'space'>
-                                        <div className = 'items-center'>  
-                                            <span className = 'summarizer'>jadn</span>
-                                            <span className = 'summarizer-description'> schedule calendar events using llm</span>
-                                        </div>
-                                        <span className = 'summarizer-date'>Sep 2024</span>
-                                    </div>                                
-                                </li>
-                            </a>
-                            </div>
-                            
-                        </ul>
-                    </div>
-                    <div className="animate-on-scroll section-pop" ref={connectRef}>
-                        <h2>connect</h2>
-                        <p>reach me at jadonleu@usc.edu</p>
-                        <div className = 'socials'>
-                            <a className = 'linkedin' href = 'https://www.linkedin.com/in/jadon-leung/' target = '_blank' rel = 'noopener noreferrer'>
-                                {/* <span className = 'sr-only'>LinkedIn</span> */}
-                                <svg className = 'social-icons' viewBox = '0 0 24 24'>
-                                    <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                        <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z"></path>
-                                        <circle cx="4" cy="4" r="2"></circle>
-                                    </g>  
-                                    
-                                </svg>
-                            </a>
-                            <a className = 'github' href = 'https://github.com/jadon-leung/'>
-                                {/* <span className = 'sr-only'>Github</span> */}
-                                <svg className = 'social-icons' viewBox="0 0 24 24">
-                                    <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                        <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
-                                    </g>
-                                </svg>
-                            </a>
+                </header>
 
+                {/* About Section */}
+                <section
+                    ref={setSectionRef(1)}
+                    className={`animate-on-scroll section-pop section-container ${activeSection === 1 ? 'section-active' : ''}`}
+                >
+                    <div className="section-highlight" />
+                    <h2>about</h2>
+                    <p className="aboutme">
+                        I'm an undergraduate at the University of Southern California studying
+                        computational and applied mathematics, concentrating in computer science.
+                        My main interests lie in full stack development and machine learning.
+                        These past summers I interned for{' '}
+                        <a href="https://www.taodigitalsolutions.com/" target="_blank" rel="noopener noreferrer" id="text-link">
+                            TAO Digital Solutions
+                        </a>, a digital solutions company and{' '}
+                        <a href="https://www.gopipa.com/admin/home" target="_blank" rel="noopener noreferrer" id="text-link">
+                            GoPIPA
+                        </a>, an AI fintech company. I also interned as an investment analyst for{' '}
+                        <a href="https://www.avaleriancapital.com/" target="_blank" rel="noopener noreferrer" id="text-link">
+                            Avalerian
+                        </a>, a search fund focused on acquiring B2B SaaS companies.
+                    </p>
+                </section>
+
+                {/* Projects Section */}
+                <section
+                    ref={setSectionRef(2)}
+                    className={`animate-on-scroll section-pop section-container ${activeSection === 2 ? 'section-active' : ''}`}
+                    data-section="projects"
+                >
+                    <div className="section-highlight" />
+                    <h2>projects</h2>
+                    <ul className="project-items">
+                        <div className="item0">
+                            <a href="https://github.com/jadon-leung/rag" target="_blank" rel="noreferrer">
+                                <li className="project-list-items">
+                                    <div className="space">
+                                        <div className="items-center">
+                                            <span className="summarizer">lease.ai</span>
+                                            <span className="summarizer-description">understanding lease documents through rag</span>
+                                        </div>
+                                        <span className="summarizer-date">Nov 2024</span>
+                                    </div>
+                                </li>
+                            </a>
                         </div>
+                        <div className="item1">
+                            <a href="https://github.com/jadon-leung/STUDI" target="_blank" rel="noreferrer">
+                                <li className="project-list-items">
+                                    <div className="space">
+                                        <div className="items-center">
+                                            <span className="summarizer">studi</span>
+                                            <span className="summarizer-description">(wip) study group social app</span>
+                                        </div>
+                                        <span className="summarizer-date">May 2024</span>
+                                    </div>
+                                </li>
+                            </a>
+                        </div>
+                        <div className="item2">
+                            <a href="https://github.com/jadon-leung/GP-for-Stock" target="_blank" rel="noreferrer">
+                                <li className="project-list-items">
+                                    <div className="space">
+                                        <div className="items-center">
+                                            <span className="summarizer">gp</span>
+                                            <span className="summarizer-description">gaussian processes for stock prediction</span>
+                                        </div>
+                                        <span className="summarizer-date">June 2024</span>
+                                    </div>
+                                </li>
+                            </a>
+                        </div>
+                        <div className="item3">
+                            <a href="https://github.com/jadon-leung/summarizer" target="_blank" rel="noreferrer">
+                                <li className="project-list-items">
+                                    <div className="space">
+                                        <div className="items-center">
+                                            <span className="summarizer">summarizer</span>
+                                            <span className="summarizer-description">web page summarizer</span>
+                                        </div>
+                                        <span className="summarizer-date">Aug 2024</span>
+                                    </div>
+                                </li>
+                            </a>
+                        </div>
+                        <div className="item4">
+                            <a href="https://github.com/jadon-leung/JADN" target="_blank" rel="noreferrer">
+                                <li className="project-list-items">
+                                    <div className="space">
+                                        <div className="items-center">
+                                            <span className="summarizer">jadn</span>
+                                            <span className="summarizer-description">schedule calendar events using llm</span>
+                                        </div>
+                                        <span className="summarizer-date">Sep 2024</span>
+                                    </div>
+                                </li>
+                            </a>
+                        </div>
+                    </ul>
+                </section>
+
+                {/* Connect Section */}
+                <section
+                    ref={setSectionRef(3)}
+                    className={`animate-on-scroll section-pop section-container ${activeSection === 3 ? 'section-active' : ''}`}
+                >
+                    <div className="section-highlight" />
+                    <h2>connect</h2>
+                    <p className="aboutme">reach me at jadonleu@usc.edu</p>
+                    <div className="socials">
+                        <a
+                            className="linkedin"
+                            href="https://www.linkedin.com/in/jadon-leung/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="LinkedIn"
+                        >
+                            <svg className="social-icons" viewBox="0 0 24 24">
+                                <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z" />
+                                    <circle cx="4" cy="4" r="2" />
+                                </g>
+                            </svg>
+                        </a>
+                        <a
+                            className="github"
+                            href="https://github.com/jadon-leung/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="GitHub"
+                        >
+                            <svg className="social-icons" viewBox="0 0 24 24">
+                                <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
+                                </g>
+                            </svg>
+                        </a>
                     </div>
-                    
-                </div >
+                </section>
             </div>
         </div>
     )
