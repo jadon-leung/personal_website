@@ -280,14 +280,45 @@
 }
 
 /* ============================================
+   HERO SECTION - SIDE BY SIDE LAYOUT
+   ============================================ */
+
+.hero-section {
+  min-height: auto !important;
+  padding-top: var(--space-xl) !important;
+  padding-bottom: var(--space-lg) !important;
+}
+
+.hero-content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xl);
+  width: 100%;
+}
+
+.hero-text {
+  flex: 1;
+}
+
+.hero-text #heyStyle {
+  margin-top: 0;
+  margin-bottom: var(--space-sm);
+}
+
+.hero-text .header {
+  margin-bottom: 0;
+}
+
+/* ============================================
    HEADSHOT SECTION - LARGER SIZE
    ============================================ */
 
 .headshot-container {
   display: flex;
   justify-content: flex-start;
-  margin-bottom: var(--space-xl);
+  margin-bottom: 0;
   perspective: 1000px;
+  flex-shrink: 0;
 }
 
 .headshot-wrapper {
@@ -754,6 +785,12 @@ h2 {
     letter-spacing: 0.1em;
   }
 
+  .hero-content {
+    flex-direction: column;
+    text-align: center;
+    gap: var(--space-lg);
+  }
+
   .headshot-container {
     justify-content: center;
   }
@@ -761,6 +798,10 @@ h2 {
   .headshot-wrapper {
     width: 150px;
     height: 150px;
+  }
+
+  .hero-text {
+    text-align: center;
   }
 
   #heyStyle {

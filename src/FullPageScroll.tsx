@@ -54,13 +54,24 @@ const FullPageScroll = () => {
         updateActiveSection();
 
         // Apply scroll-based transforms to all sections
-        sectionsRef.current.forEach((section) => {
+        sectionsRef.current.forEach((section, index) => {
             if (!section) return;
 
             const rect = section.getBoundingClientRect();
             const windowHeight = window.innerHeight;
             const sectionCenter = rect.top + rect.height / 2;
             const viewportCenter = windowHeight / 2;
+
+            // Hero section (index 0) - keep fully visible when near top of page
+            if (index === 0) {
+                const isNearTop = rect.top >= -100 && rect.top <= windowHeight * 0.3;
+                if (isNearTop) {
+                    section.style.transform = 'translateY(0) scale(1)';
+                    section.style.filter = 'blur(0px)';
+                    section.style.opacity = '1';
+                    return;
+                }
+            }
 
             // Calculate how far from center (0 = center, 1 = edge)
             const distanceFromCenter = Math.abs(sectionCenter - viewportCenter) / (windowHeight / 2);
@@ -218,35 +229,39 @@ const FullPageScroll = () => {
                 {/* Hero Section */}
                 <header
                     ref={setSectionRef(0)}
-                    className={`section-container ${activeSection === 0 ? 'section-active' : ''}`}
+                    className={`section-container hero-section ${activeSection === 0 ? 'section-active' : ''}`}
                 >
-                    <div className="headshot-container animate-on-scroll">
-                        <div className="headshot-wrapper">
-                            <div className="headshot-glow" />
-                            <img
-                                src="/personal_website/headshot.JPG"
-                                alt="Jadon Leung"
-                                className="headshot-image"
-                                onError={(e) => {
-                                    e.currentTarget.style.display = 'none';
-                                    const placeholder = e.currentTarget.nextElementSibling as HTMLElement;
-                                    if (placeholder) placeholder.style.display = 'flex';
-                                }}
-                            />
-                            <div className="headshot-placeholder" style={{display: 'none'}}>
-                                <span>JL</span>
+                    <div className="hero-content">
+                        <div className="headshot-container animate-on-scroll">
+                            <div className="headshot-wrapper">
+                                <div className="headshot-glow" />
+                                <img
+                                    src="/personal_website/headshot.JPG"
+                                    alt="Jadon Leung"
+                                    className="headshot-image"
+                                    onError={(e) => {
+                                        e.currentTarget.style.display = 'none';
+                                        const placeholder = e.currentTarget.nextElementSibling as HTMLElement;
+                                        if (placeholder) placeholder.style.display = 'flex';
+                                    }}
+                                />
+                                <div className="headshot-placeholder" style={{display: 'none'}}>
+                                    <span>JL</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <h1 id="heyStyle" ref={titleRef}>hi, i'm jadon leung</h1>
-                    <h3 className="header">
-                         undergrad at{' '}
-                        <a href="https://www.usc.edu/" id="usc" target="_blank" rel="noopener noreferrer">
-                            usc
-                        </a>
-                        {' '}studying computational and applied mathematics
-                    </h3>
+                        <div className="hero-text">
+                            <h1 id="heyStyle" ref={titleRef}>hi, i'm jadon leung</h1>
+                            <h3 className="header">
+                                 undergrad at{' '}
+                                <a href="https://www.usc.edu/" id="usc" target="_blank" rel="noopener noreferrer">
+                                    usc
+                                </a>
+                                {' '}studying computational and applied mathematics
+                            </h3>
+                        </div>
+                    </div>
                 </header>
 
                 {/* About Section */}
