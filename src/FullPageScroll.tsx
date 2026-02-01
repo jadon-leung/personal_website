@@ -241,7 +241,7 @@ const FullPageScroll = () => {
 
                     <h1 id="heyStyle" ref={titleRef}>hi, i'm jadon leung</h1>
                     <h3 className="header">
-                        incoming undergrad at{' '}
+                         undergrad at{' '}
                         <a href="https://www.usc.edu/" id="usc" target="_blank" rel="noopener noreferrer">
                             usc
                         </a>
