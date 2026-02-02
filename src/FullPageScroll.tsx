@@ -297,6 +297,19 @@ const FullPageScroll = () => {
                     <div className="section-highlight" />
                     <h2>projects</h2>
                     <ul className="project-items">
+                        <div className="item-placeholder">
+                            <a href="https://github.com/jadon-leung/kanban" target="_blank" rel="noreferrer">
+                                <li className="project-list-items">
+                                    <div className="space">
+                                        <div className="items-center">
+                                            <span className="summarizer">kanban board</span>
+                                            <span className="summarizer-description">productivity board</span>
+                                        </div>
+                                        <span className="summarizer-date">Feb 2026</span>
+                                    </div>
+                                </li>
+                            </a>
+                        </div>
                         <div className="item0">
                             <a href="https://github.com/jadon-leung/rag" target="_blank" rel="noreferrer">
                                 <li className="project-list-items">
