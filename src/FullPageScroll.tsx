@@ -278,7 +278,7 @@ const FullPageScroll = () => {
                         These past summers I interned for{' '}
                         <a href="https://www.taodigitalsolutions.com/" target="_blank" rel="noopener noreferrer" id="text-link">
                             TAO Digital Solutions
-                        </a>, a digital solutions company and{' '}
+                        </a>, a digital solutions company and, {' '}
                         <a href="https://www.gopipa.com/admin/home" target="_blank" rel="noopener noreferrer" id="text-link">
                             GoPIPA
                         </a>, an AI fintech company. I also interned as an investment analyst for{' '}
